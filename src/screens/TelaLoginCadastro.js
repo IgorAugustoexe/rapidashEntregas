@@ -6,7 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faEnvelope, faIdCard, faKey, faUser } from '@fortawesome/free-solid-svg-icons'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { TextInputMask } from 'react-native-masked-text'
-import { AuthContext } from '../apis/AuthContext';
+import { removerAcento } from '../helpers/FuncoesPadrao'
+import { AuthContext } from '../apis/AuthContext'
 
 export default function TelaLoginCadastro() {
     const navigation = useNavigation()
@@ -34,13 +35,6 @@ export default function TelaLoginCadastro() {
 
     const { register, login } = useContext(AuthContext)
 
-    useEffect(() => {
-        didMount()
-    }, [])
-
-    const didMount = () => {
-    }
-
     const controleSessao = () => {
         setCadastro(!cadastro)
         if (cadastro) {
@@ -56,36 +50,105 @@ export default function TelaLoginCadastro() {
         }).start()
     }
 
-    controleLoginCadastro = () => {
+    const controleLoginCadastro = () => {
         setLoaderBtn(true)
         if (cadastro) {
+            cadastroEmailInvalido && setCadastroEmailInvalido(false)
+            cadastroSenhaInvalida && setCadastroSenhaInvalida(false)
+            nomeInvalido && setNomeInvalido(false)
+            cpfInvalido && setCpfInvalido(false)
+
+            validarEmail(cadastroEmail, 1)
+            validarSenha(cadastroSenha, 1)
+            validarNome()
+            validarCpf()
+
+            if ((!validarEmail(cadastroEmail, 1)) || (!validarSenha(cadastroSenha, 1)) || (!validarNome()) || (!validarCpf())) {
+                setLoaderBtn(false)
+                return
+            }
             fazerCadastro(setLoaderBtn)
+            return
+        }
+        loginEmailInvalido && setLoginEmailInvalido(false)
+        loginSenhaInvalida && setLoginSenhaInvalida(false)
+
+        validarEmail(loginEmail, 0)
+        validarSenha(loginSenha, 0)
+
+        if ((!validarEmail(loginEmail, 0)) || (!validarSenha(loginSenha, 0))) {
+            setLoaderBtn(false)
             return
         }
         fazerLogin(setLoaderBtn)
     }
 
-    const fazerCadastro = async(callback) => {
-        try{
+    const validarEmail = (email, tipo) => {
+        const reg = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/
+        if (!(reg.test(email.trim()))) {
+            if (tipo == 0) {
+                setLoginEmailInvalido(true)
+                return false
+            }
+            setCadastroEmailInvalido(true)
+            return false
+        }
+        return true
+    }
+
+    const validarSenha = (senha, tipo) => {
+        if (senha.length <= 6) {
+            if (tipo == 0) {
+                setLoginSenhaInvalida(true)
+                return false
+            }
+            setCadastroSenhaInvalida(true)
+            return false
+        }
+        return true
+    }
+
+    const validarNome = () => {
+        const reg = /\b[A-Za-zÀ-ú][A-Za-zÀ-ú]+,?\s[A-Za-zÀ-ú][A-Za-zÀ-ú]{2,19}\b/gi
+        if (!(reg.test(nome.trim()))) {
+            setNomeInvalido(true)
+            return false
+        }
+        return true
+    }
+
+    const validarCpf = () => {
+        const cpfFormatado = removerAcento(cpf)
+        if (cpfFormatado.length <= 10) {
+            setCpfInvalido(true)
+            return false
+        }
+        return true
+    }
+
+    const fazerLogin = async (callback) => {
+        try {
+            const resp = await login(loginEmail, loginSenha, callback)
+        } catch (e) {
+            console.log(e);
+        }
+        //console.log('implementar login')
+    }
+
+    const fazerCadastro = async (callback) => {
+        try {
             const resp = await register({
-                email:cadastroEmail,
-                password:cadastroSenha,
-                fullName:nome,
-            },callback)
-        }catch(e){
+                email: cadastroEmail,
+                password: cadastroSenha,
+                fullName: nome,
+            }, callback)
+        } catch (e) {
             console.log(e);
         }
         //console.log('implementar cadastro')
     }
 
-    const fazerLogin = async(callback) => {
-        try{
-            const resp = await login(loginEmail,loginSenha,callback)
-        }catch(e){
-            console.log(e);
-        }
-        //console.log('implementar login')
-    }
+    // COMPONENTES
 
     const Cabecalho = () => (
         <View style={{ alignItems: 'center', marginTop: 15 }}>
@@ -108,7 +171,7 @@ export default function TelaLoginCadastro() {
                     value={loginEmail}
                     onChangeText={(text) => setLoginEmail(text)}
                     style={[styles.inputLogin, loginEmailInvalido && { borderColor: cores.vermelho }]}
-                    onFocus={loginEmailInvalido && setLoginEmailInvalido(false)}
+                    onFocus={() => loginEmailInvalido && setLoginEmailInvalido(false)}
                     placeholder={'Digite seu Email'}
                     placeholderTextColor={cores.cinzaEscuro}
                 />
@@ -120,7 +183,7 @@ export default function TelaLoginCadastro() {
                 <TextInput
                     value={loginSenha}
                     style={[styles.inputLogin, loginSenhaInvalida && { borderColor: cores.vermelho }]}
-                    onFocus={loginSenhaInvalida && setLoginSenhaInvalida(false)}
+                    onFocus={() => loginSenhaInvalida && setLoginSenhaInvalida(false)}
                     onChangeText={(text) => setLoginSenha(text)}
                     placeholder={'Digite sua Senha'}
                     placeholderTextColor={cores.cinzaEscuro}
@@ -170,7 +233,7 @@ export default function TelaLoginCadastro() {
                             value={cadastroEmail}
                             onChangeText={(text) => setCadastroEmail(text)}
                             style={[styles.inputCadastro, cadastroEmailInvalido && { borderColor: cores.vermelho }]}
-                            onFocus={cadastroEmailInvalido && setCadastroEmailInvalido(false)}
+                            onFocus={() => cadastroEmailInvalido && setCadastroEmailInvalido(false)}
                             placeholder={'Digite seu Email'}
                             placeholderTextColor={cores.cinzaEscuro}
                         />
@@ -185,7 +248,7 @@ export default function TelaLoginCadastro() {
                             value={cadastroSenha}
                             onChangeText={(text) => setCadastroSenha(text)}
                             style={[styles.inputCadastro, cadastroSenhaInvalida && { borderColor: cores.vermelho }]}
-                            onFocus={cadastroSenhaInvalida && setCadastroSenhaInvalida(false)}
+                            onFocus={() => cadastroSenhaInvalida && setCadastroSenhaInvalida(false)}
                             placeholder={'Digite sua Senha'}
                             placeholderTextColor={cores.cinzaEscuro}
                         />
@@ -200,7 +263,7 @@ export default function TelaLoginCadastro() {
                             value={nome}
                             onChangeText={(text) => setNome(text)}
                             style={[styles.inputCadastro, nomeInvalido && { borderColor: cores.vermelho }]}
-                            onFocus={nomeInvalido && setNomeInvalido(false)}
+                            onFocus={() => nomeInvalido && setNomeInvalido(false)}
                             placeholder={'Digite seu Nome'}
                             placeholderTextColor={cores.cinzaEscuro}
                         />
@@ -216,7 +279,7 @@ export default function TelaLoginCadastro() {
                             value={cpf}
                             onChangeText={(text) => setCpf(text)}
                             style={[styles.inputCadastro, cpfInvalido && { borderColor: cores.vermelho }]}
-                            onFocus={cpfInvalido && setCpfInvalido(false)}
+                            onFocus={() => cpfInvalido && setCpfInvalido(false)}
                             placeholder={'Digite seu CPF'}
                             placeholderTextColor={cores.cinzaEscuro}
                             maxLength={14}
