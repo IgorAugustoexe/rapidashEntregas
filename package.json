@@ -7,7 +7,8 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "emulator-nexus": "emulator -avd Nexus_5X_API_29"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.2.0",
@@ -19,6 +20,7 @@
     "@react-navigation/native": "^6.0.12",
     "@react-navigation/native-stack": "^6.8.0",
     "@react-navigation/stack": "^6.2.3",
+    "axios": "^0.27.2",
     "react": "18.1.0",
     "react-native": "0.70.0",
     "react-native-gesture-handler": "^2.6.0",

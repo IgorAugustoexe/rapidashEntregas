@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react'
+import React, { Fragment, useState, useEffect, useRef, useContext } from 'react'
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, Image, ActivityIndicator, Animated } from 'react-native'
 import { config, cores, estilos } from '../styles/Estilos'
 import { useNavigation } from '@react-navigation/native'
@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faEnvelope, faIdCard, faKey, faUser } from '@fortawesome/free-solid-svg-icons'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { TextInputMask } from 'react-native-masked-text'
+import { AuthContext } from '../apis/AuthContext';
 
 export default function TelaLoginCadastro() {
     const navigation = useNavigation()
@@ -15,8 +16,8 @@ export default function TelaLoginCadastro() {
     const [cadastro, setCadastro] = useState(false)
     const [loaderBtn, setLoaderBtn] = useState(false)
 
-    const [loginEmail, setLoginEmail] = useState('')
-    const [loginSenha, setLoginSenha] = useState('')
+    const [loginEmail, setLoginEmail] = useState('email@email.com')
+    const [loginSenha, setLoginSenha] = useState('senha@senha')
 
     const [cadastroEmail, setCadastroEmail] = useState('')
     const [cadastroSenha, setCadastroSenha] = useState('')
@@ -30,6 +31,8 @@ export default function TelaLoginCadastro() {
     const [cadastroSenhaInvalida, setCadastroSenhaInvalida] = useState(false)
     const [cpfInvalido, setCpfInvalido] = useState(false)
     const [nomeInvalido, setNomeInvalido] = useState(false)
+
+    const { register, login } = useContext(AuthContext)
 
     useEffect(() => {
         didMount()
@@ -56,18 +59,32 @@ export default function TelaLoginCadastro() {
     controleLoginCadastro = () => {
         setLoaderBtn(true)
         if (cadastro) {
-            fazerCadastro()
+            fazerCadastro(setLoaderBtn)
             return
         }
-        fazerLogin()
+        fazerLogin(setLoaderBtn)
     }
 
-    const fazerCadastro = () => {
-        console.log('implementar cadastro')
+    const fazerCadastro = async(callback) => {
+        try{
+            const resp = await register({
+                email:cadastroEmail,
+                password:cadastroSenha,
+                fullName:nome,
+            },callback)
+        }catch(e){
+            console.log(e);
+        }
+        //console.log('implementar cadastro')
     }
 
-    const fazerLogin = () => {
-        console.log('implementar login')
+    const fazerLogin = async(callback) => {
+        try{
+            const resp = await login(loginEmail,loginSenha,callback)
+        }catch(e){
+            console.log(e);
+        }
+        //console.log('implementar login')
     }
 
     const Cabecalho = () => (
