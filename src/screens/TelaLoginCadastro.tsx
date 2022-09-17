@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useRef, useContext } from 'react'
+import React, { Fragment, useState, useRef, useContext } from 'react'
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, Image, ActivityIndicator, Animated } from 'react-native'
 import { config, cores, estilos } from '../styles/Estilos'
 import { useNavigation } from '@react-navigation/native'
@@ -10,28 +10,28 @@ import { removerAcento } from '../helpers/FuncoesPadrao'
 import { AuthContext } from '../apis/AuthContext'
 
 export default function TelaLoginCadastro() {
-    const navigation = useNavigation()
+    const navigation = useNavigation<any>()
 
     const sliceAnimation = useRef(new Animated.Value(-400)).current
 
-    const [cadastro, setCadastro] = useState(false)
-    const [loaderBtn, setLoaderBtn] = useState(false)
+    const [cadastro, setCadastro] = useState<boolean>(false)
+    const [loaderBtn, setLoaderBtn] = useState<boolean>(false)
 
-    const [loginEmail, setLoginEmail] = useState('email@email.com')
-    const [loginSenha, setLoginSenha] = useState('senha@senha')
+    const [loginEmail, setLoginEmail] = useState<string>('email@email.com')
+    const [loginSenha, setLoginSenha] = useState<string>('senha@senha')
 
-    const [cadastroEmail, setCadastroEmail] = useState('')
-    const [cadastroSenha, setCadastroSenha] = useState('')
-    const [cpf, setCpf] = useState('')
-    const [nome, setNome] = useState('')
+    const [cadastroEmail, setCadastroEmail] = useState<string>('')
+    const [cadastroSenha, setCadastroSenha] = useState<string>('')
+    const [cpf, setCpf] = useState<string>('')
+    const [nome, setNome] = useState<string>('')
 
-    const [loginEmailInvalido, setLoginEmailInvalido] = useState(false)
-    const [loginSenhaInvalida, setLoginSenhaInvalida] = useState(false)
+    const [loginEmailInvalido, setLoginEmailInvalido] = useState<boolean>(false)
+    const [loginSenhaInvalida, setLoginSenhaInvalida] = useState<boolean>(false)
 
-    const [cadastroEmailInvalido, setCadastroEmailInvalido] = useState(false)
-    const [cadastroSenhaInvalida, setCadastroSenhaInvalida] = useState(false)
-    const [cpfInvalido, setCpfInvalido] = useState(false)
-    const [nomeInvalido, setNomeInvalido] = useState(false)
+    const [cadastroEmailInvalido, setCadastroEmailInvalido] = useState<boolean>(false)
+    const [cadastroSenhaInvalida, setCadastroSenhaInvalida] = useState<boolean>(false)
+    const [cpfInvalido, setCpfInvalido] = useState<boolean>(false)
+    const [nomeInvalido, setNomeInvalido] = useState<boolean>(false)
 
     const { register, login } = useContext(AuthContext)
 
@@ -51,6 +51,8 @@ export default function TelaLoginCadastro() {
     }
 
     const controleLoginCadastro = () => {
+        navigation.navigate('entregas')
+        return
         setLoaderBtn(true)
         if (cadastro) {
             cadastroEmailInvalido && setCadastroEmailInvalido(false)
@@ -83,7 +85,7 @@ export default function TelaLoginCadastro() {
         fazerLogin(setLoaderBtn)
     }
 
-    const validarEmail = (email, tipo) => {
+    const validarEmail = (email: string, tipo: number) => {
         const reg = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/
         if (!(reg.test(email.trim()))) {
             if (tipo == 0) {
@@ -96,7 +98,7 @@ export default function TelaLoginCadastro() {
         return true
     }
 
-    const validarSenha = (senha, tipo) => {
+    const validarSenha = (senha: string, tipo: number) => {
         if (senha.length <= 6) {
             if (tipo == 0) {
                 setLoginSenhaInvalida(true)
@@ -126,7 +128,7 @@ export default function TelaLoginCadastro() {
         return true
     }
 
-    const fazerLogin = async (callback) => {
+    const fazerLogin = async (callback: any) => {
         try {
             const resp = await login(loginEmail, loginSenha, callback)
         } catch (e) {
@@ -135,7 +137,7 @@ export default function TelaLoginCadastro() {
         //console.log('implementar login')
     }
 
-    const fazerCadastro = async (callback) => {
+    const fazerCadastro = async (callback: any) => {
         try {
             const resp = await register({
                 email: cadastroEmail,
@@ -212,7 +214,9 @@ export default function TelaLoginCadastro() {
                 </TouchableOpacity>
             </View>
             <Text style={styles.txtRodape}>{cadastro ? 'Já tem uma conta?' : 'Novo por aqui?'}
-                <Text style={{ color: cadastro ? cores.laranjaPrimario : cores.azul }} onPress={() => controleSessao()} disabled={loaderBtn}> {cadastro ? 'Faça Login' : 'Crie sua Conta'}</Text>
+                <TouchableOpacity onPress={() => controleSessao()} disabled={loaderBtn}>
+                    <Text style={{ top: 5, color: cadastro ? cores.laranjaPrimario : cores.azul }}> {cadastro ? 'Faça Login' : 'Crie sua Conta'}</Text>
+                </TouchableOpacity>
             </Text>
         </View>
     )
