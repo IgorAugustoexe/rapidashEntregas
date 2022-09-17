@@ -4,7 +4,8 @@ import { createStackNavigator } from '@react-navigation/stack'
 import { AuthProvider } from './apis/AuthContext'
 import TelaLoginCadastro from './screens/TelaLoginCadastro'
 import TelaEntregas from './screens/TelaEntregas'
-
+import TelaDetalhesEntrega from './screens/TelaDetalhesEntrega'
+import ConfirmarEntrega from './screens/ConfirmarEntrega'
 
 const Stack = createStackNavigator()
 
@@ -23,6 +24,19 @@ export default function App() {
                     <Stack.Screen
                         name="entregas"
                         component={TelaEntregas}
+                    />
+                    <Stack.Screen
+                        name="detalhesEntrega"
+                        component={TelaDetalhesEntrega}
+                    />
+                    <Stack.Screen
+                        name="confirmarEntrega"
+                        component={ConfirmarEntrega}
+                        options={{
+                            presentation: 'transparentModal',
+                            animationEnabled: true,
+                            cardOverlayEnabled: true
+                        }}
                     />
                 </Stack.Navigator>
             </NavigationContainer>

@@ -72,8 +72,6 @@ const ARRAY_PEDIDOS = [
     }
 ]
 
-const ARRAY_PED = null
-
 export default function TelaEntregas() {
     const navigation = useNavigation<any>()
 
@@ -85,8 +83,8 @@ export default function TelaEntregas() {
         navigation.goBack()
     }
 
-    const abrirDetalhesPedido = (item: object) => {
-        console.log(item)
+    const abrirDetalhesPedido = (dadosEntrega: object) => {
+        navigation.navigate('detalhesEntrega', { dadosEntrega })
     }
 
     // COMPONENTES
@@ -114,7 +112,7 @@ export default function TelaEntregas() {
                             <Text style={{ color: cores.azul, fontWeight: '700' }}>#{item.codPedido}</Text>
                             <Text style={{ color: cores.fontePadrao }}>{item.destinatario}</Text>
                             <Text style={{ color: cores.fontePadrao }}>{item.logradouro}, {item.numero}</Text>
-                            <Text style={{ color: cores.fontePadrao }}>{item.bairro} - {item.cidade}/{item.uf}</Text>
+                            <Text style={{ color: cores.fontePadrao }}>{item.bairro} - {item.cidade} / {item.uf}</Text>
                         </View>
                         <View style={{ width: '10%', alignSelf: 'center' }}>
                             <FontAwesomeIcon icon={faAngleRight} size={config.windowWidth / 12} color={cores.fontePadrao} />
@@ -126,11 +124,9 @@ export default function TelaEntregas() {
     )
 
     const ErroLoader = () => (
-        <Fragment>
+        <View style={{ flex: 1, justifyContent: 'center' }}>
             {loaderReq ?
-                <View style={{ marginTop: config.windowWidth / 2 }}>
-                    <ActivityIndicator color={cores.laranjaPrimario} size={'large'} />
-                </View>
+                <ActivityIndicator color={cores.laranjaPrimario} size={'large'} />
                 :
                 <View style={styles.containerErroReq}>
                     <Text style={[styles.txtErroReq, { fontWeight: 'bold' }]}>Erro ao carregar a página</Text>
@@ -140,7 +136,7 @@ export default function TelaEntregas() {
                     </TouchableOpacity>
                 </View>
             }
-        </Fragment>
+        </View>
     )
 
     return (
@@ -166,7 +162,6 @@ const styles = StyleSheet.create({
     },
     containerErroReq: {
         alignSelf: 'center',
-        marginTop: config.windowWidth / 2,
         backgroundColor: cores.laranjaTerciario,
         padding: 15,
         borderRadius: 15
