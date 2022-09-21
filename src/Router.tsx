@@ -6,7 +6,6 @@ import TelaLoginCadastro from './screens/TelaLoginCadastro'
 import TelaEntregas from './screens/TelaEntregas'
 import TelaDetalhesEntrega from './screens/TelaDetalhesEntrega'
 import ConfirmarEntrega from './screens/ConfirmarEntrega'
-
 const Stack = createStackNavigator()
 
 export default function App() {
@@ -40,6 +39,7 @@ export default function App() {
                     />
                 </Stack.Navigator>
             </NavigationContainer>
+           
         </AuthProvider>
     )
 }

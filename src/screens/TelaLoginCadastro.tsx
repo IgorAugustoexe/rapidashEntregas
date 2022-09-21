@@ -51,8 +51,8 @@ export default function TelaLoginCadastro() {
     }
 
     const controleLoginCadastro = () => {
-        navigation.navigate('entregas')
-        return
+        
+        
         setLoaderBtn(true)
         if (cadastro) {
             cadastroEmailInvalido && setCadastroEmailInvalido(false)
@@ -131,6 +131,11 @@ export default function TelaLoginCadastro() {
     const fazerLogin = async (callback: any) => {
         try {
             const resp = await login(loginEmail, loginSenha, callback)
+            if(!resp){
+                return
+            }else{
+                navigation.navigate('entregas')
+            }
         } catch (e) {
             console.log(e);
         }
@@ -143,6 +148,7 @@ export default function TelaLoginCadastro() {
                 email: cadastroEmail,
                 password: cadastroSenha,
                 fullName: nome,
+                cpf:cpf
             }, callback)
         } catch (e) {
             console.log(e);
