@@ -94,7 +94,8 @@ const login = async (email, password, callback) => {
 
             userInfo['user'] = resLogin;
             setIsLogged(true)
-            popUpErroGenerico({ type: 'customSuccess', text1: 'Sessão Iniciada com sucesso', text2: `Bem-Vindo{a) de volta ${resLogin.fullName}` })
+            fullName = resLogin.fullName.split(' ')
+            popUpErroGenerico({ type: 'customSuccess', text1: 'Sessão Iniciada com sucesso', text2: `Bem-Vindo{a) de volta ${fullName[0]}` })
             return userInfo;
             
         } catch (e) {
@@ -105,6 +106,7 @@ const login = async (email, password, callback) => {
 
     } catch (e) {
         console.log(`Error while auth: ${e}`);
+        popUpErroGenerico({ type: 'customError', text1: 'Alguma coisa aconteceu', text2: `Por favor verfique os dados, a sua conexão e tente novamente` })
         return;
     }finally {
         try {
@@ -145,6 +147,8 @@ const isLoggedIn = async () => {
             popUpErroGenerico({ type: 'customInfo', text1: 'Usuário Deslogado', text2:'A sua sessão expirou, por favor, realize o login novamente'})
             logout()
            }else{
+            fullName = store.user.fullName.split(' ')
+            popUpErroGenerico({ type: 'customInfo', text1: `Bem vindo de volta ${fullName[0]}` , text2:'A equipe Rapidash te deseja um bom dia'})
             setIsLogged(true)
            }
           

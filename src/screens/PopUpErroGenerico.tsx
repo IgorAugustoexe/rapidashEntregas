@@ -73,7 +73,7 @@ export const toastConfig = {
   customInfo: ({ text1,text2 }:any) => (
     <View style={styles.notificationWrapper}>
       <View style={styles.leftSideInfo}>
-        <FontAwesomeIcon icon={faBolt} size={config.windowWidth / 20} color='#FFFFFF' />
+        <FontAwesomeIcon icon={faBolt} size={config.windowWidth / 13} color='#FFFFFF' />
       </View>
       <View style={styles.rightViewInfo}>
         <Text style={styles.title}>{text1}</Text>
@@ -115,7 +115,7 @@ notificationWrapper: {
     flexDirection:'column',
     height:'100%',
     paddingHorizontal:'3%',
-    borderTopColor:'#FF4E0A',
+    borderTopColor:'#FF8A00',
     borderTopWidth:2,
     paddingVertical:7
   },
@@ -125,7 +125,7 @@ notificationWrapper: {
     justifyContent:'center',
     height:'100%',
     paddingLeft:'1%',
-    borderColor:'#FF4E0A',
+    borderColor:'#FF8A00',
     borderTopWidth:2,
     borderLeftWidth:2,
     borderBottompWidth:2,
@@ -188,7 +188,8 @@ notificationWrapper: {
   title: {
     fontSize:config.windowWidth/23,
     color:'#3D3C3C',
-    fontWeight:'900'
+    fontWeight:'900',
+
   },
   message:{
     fontSize:config.windowWidth/25,
