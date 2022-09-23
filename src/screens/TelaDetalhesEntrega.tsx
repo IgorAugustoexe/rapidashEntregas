@@ -1,5 +1,5 @@
 import React, { useRef } from 'react'
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
 import { config, cores, estilos } from '../styles/Estilos'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faArrowLeft, faMapLocationDot } from '@fortawesome/free-solid-svg-icons'
@@ -23,7 +23,7 @@ export default function TelaDetalhesEntrega() {
     }
 
     const abrirMapa = () => {
-        console.log('mapinha')
+        navigation.navigate('mapa')
     }
 
     // COMPONENTES
@@ -55,9 +55,7 @@ export default function TelaDetalhesEntrega() {
     return (
         <View style={estilos.containerPrincipal}>
             <NavBar titulo={'Encomenda'} icone={faArrowLeft} />
-            <ScrollView>
-                <DetalhesEntrega />
-            </ScrollView>
+            <DetalhesEntrega />
         </View>
     )
 }
@@ -107,5 +105,16 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: cores.backgroundPadrao,
         fontWeight: 'bold'
-    }
+    },
+
+    container: {
+        flex: 1,
+        backgroundColor: cores.backgroundPadrao,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    map: {
+        width: '30%',
+        height: '30%',
+    },
 })

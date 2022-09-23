@@ -1,5 +1,5 @@
-import React, { Fragment, useState, useRef, useContext } from 'react'
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Image, ActivityIndicator, Animated } from 'react-native'
+import React, { Fragment, useState, useEffect, useRef, useContext } from 'react'
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Image, ActivityIndicator, Animated, PermissionsAndroid, Alert, Linking } from 'react-native'
 import { config, cores, estilos } from '../styles/Estilos'
 import { useNavigation } from '@react-navigation/native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -8,6 +8,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { TextInputMask } from 'react-native-masked-text'
 import { removerAcento } from '../helpers/FuncoesPadrao'
 import { AuthContext } from '../apis/AuthContext'
+import { requisitarPermissaoArmazenamento, requisitarPermissaoLocalizacao } from '../controllers/PermissoesController'
 
 export default function TelaLoginCadastro() {
     const navigation = useNavigation<any>()
@@ -32,8 +33,49 @@ export default function TelaLoginCadastro() {
     const [cadastroSenhaInvalida, setCadastroSenhaInvalida] = useState<boolean>(false)
     const [cpfInvalido, setCpfInvalido] = useState<boolean>(false)
     const [nomeInvalido, setNomeInvalido] = useState<boolean>(false)
-
     const { register, login } = useContext(AuthContext)
+
+    useEffect(() => {
+        didMount()
+    }, [])
+
+    const didMount = () => {
+        solicitarLocalizacao()
+        solicitarArmazenamento()
+    }
+
+    const solicitarLocalizacao = async () => {
+        const permissaoLocalizacao = await requisitarPermissaoLocalizacao()
+        if (permissaoLocalizacao != PermissionsAndroid.RESULTS.GRANTED) {
+            Alert.alert(
+                "Permissão da Localização",
+                "Libere o acesso ao Urbniversity para acessar sua localização.",
+                [
+                    {
+                        text: "Cancelar"
+                    },
+                    { text: "Liberar Acesso", onPress: () => Linking.openSettings() }
+                ]
+            )
+        }
+    }
+
+    const solicitarArmazenamento = async () => {
+        const permissaoArmazenamento = await requisitarPermissaoArmazenamento()
+        if (permissaoArmazenamento != PermissionsAndroid.RESULTS.GRANTED) {
+            Alert.alert(
+                "Permissão de armazenamento",
+                "Libere o acesso ao Urbniversity para acessar seu armazenamento.",
+                [
+                    {
+                        text: "Cancelar"
+                    },
+                    { text: "Liberar Acesso", onPress: () => Linking.openSettings() }
+                ]
+            )
+            return
+        }
+    }
 
     const controleSessao = () => {
         setCadastro(!cadastro)
