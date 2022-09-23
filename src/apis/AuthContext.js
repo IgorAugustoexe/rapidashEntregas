@@ -1,23 +1,27 @@
-//import { } from ''; // Colocar aqui o store.
-//possivelmente retirar o asyncStorage no futuro
 import axios from 'axios';
 import React, { createContext, useEffect, useState } from 'react';
 import { BASE_URL, KEY } from './config';
 import { popUpErroGenerico } from '../screens/PopUpErroGenerico';
-//import { useDispatch, useSelector } from 'react-redux'; //-> Para armazenar no redux. Se são for utilizado outro tipo de redux
+import { setInfo, resetUser } from '../redux/reducers/usuarioReducer';
+import { useDispatch, useSelector } from 'react-redux';
+
 //Cria um contexto para ser utilizado pelos elementos filho
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
 
-    // const store = useSelector(({ user }) => { //Possiel store de user
-    //     return {
-    //         user: user
-    //     }
-    // })
+    const store = useSelector(({ user }) => {
+        return {
+            userDebug: user,
+            user: user.user,
+            accessToken: user.access_token,
+        }
+    })
 
-    //const dispatch = useDispatch()
+    const dispatch = useDispatch()
     const [userInfo, setUserInfo] = useState({});
+    const [isLogged, setIsLogged] = useState(false)
+
     //The axios configs
     axios.defaults.baseURL = BASE_URL;
     axios.defaults.headers.common['Content-Type'] = 'application/json';
@@ -39,7 +43,6 @@ export const AuthProvider = ({ children }) => {
 
     //REGISTER
     const register = async (object, callback) => {
-        console.log(object)
         const obj = {
             email: object.email,
             password: object.password,
@@ -50,7 +53,6 @@ export const AuthProvider = ({ children }) => {
         try {
             const aux = await axios.post(`/user`, obj);
             const req = await aux.data
-            console.log(req)
             login(req.email,object.password,callback)
             popUpErroGenerico({ type: 'customSuccess', text1: 'Usuário cadastrado com sucesso', text2: `Por favor aguarde enquanto iniciamos a sua sessão` })
             return req
@@ -63,6 +65,20 @@ export const AuthProvider = ({ children }) => {
     
 };
 
+const getUser = async (type, config) => {
+    let userInfo = {}
+    try {
+        const aux = await axios.get(`/${type}`, config)
+        const resp = await aux.data;
+        userInfo = resp;
+        return userInfo;
+    } catch (e) {
+        console.log(`Error while getting user: ${e}`)
+        return;
+    }
+
+}
+
 const login = async (email, password, callback) => {
     let userInfo = {};
     let aux;
@@ -74,11 +90,11 @@ const login = async (email, password, callback) => {
   
         try {
             const config = { headers: { 'Authorization': `Bearer ${aux.access_token}` } };
-            const resLogin = await axios.get(`/user`, config);
+            const resLogin = await getUser(`user`, config);
 
-            aux = await resLogin.data;
-            userInfo['user'] = aux;
-            setUserInfo(userInfo);
+            userInfo['user'] = resLogin;
+            setIsLogged(true)
+            popUpErroGenerico({ type: 'customSuccess', text1: 'Sessão Iniciada com sucesso', text2: `Bem-Vindo{a) de volta ${resLogin.fullName}` })
             return userInfo;
             
         } catch (e) {
@@ -93,7 +109,7 @@ const login = async (email, password, callback) => {
     }finally {
         try {
             callback(false)
-            popUpErroGenerico({ type: 'customSuccess', text1: 'Sessão Iniciada com sucesso', text2: `Bem-Vindo{a) de volta ${userInfo.user.fullName}` })
+            dispatch(setInfo(userInfo))
         } catch (e) {
             console.log(`Login Finaly error: ${e}`)
             popUpErroGenerico({ type: 'customError', text1: 'Alguma coisa aconteceu', text2: `Por favor verfique os dados, a sua conexão e tente novamente` })
@@ -108,14 +124,46 @@ const login = async (email, password, callback) => {
 };
 //LOGOUT
 const logout = () => {
-    setUserInfo({})
+    if(isLogged){
+        popUpErroGenerico({ type: 'customInfo', text1: 'Volte Novamente', text2:'Usuário deslogado com sucesso'})
+    }
+    dispatch(resetUser())
     popUpErroGenerico({ type: 'customInfo', text1: 'Volte Novamente', text2:'Usuário deslogado com sucesso'})
 
 };
 
 const isLoggedIn = async () => {
+
+    
+    if (store.accessToken) {
+            
+        try {
+            const config = { headers: { 'Authorization': `Bearer ${store.accessToken}` } };
+         
+            const user = await getUser('user',config)
+           if(!user){
+            popUpErroGenerico({ type: 'customInfo', text1: 'Usuário Deslogado', text2:'A sua sessão expirou, por favor, realize o login novamente'})
+            logout()
+           }else{
+            setIsLogged(true)
+           }
+          
+
+        } catch (e) {
+            popUpErroGenerico({ type: 'customInfo', text1: 'Usuário Deslogado', text2:'A sua sessão expirou, por favor, realize o login novamente'})
+            console.log(`is logged in error ${e}`);
+            logout()
+       
+        }
+
+    }
 };
 
+useEffect(() => {
+    if (store.accessToken && !isLogged) {
+        isLoggedIn();
+    }
+}, [store.accessToken]);
 
 return (
     <AuthContext.Provider

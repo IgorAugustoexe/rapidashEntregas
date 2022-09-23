@@ -131,11 +131,6 @@ export default function TelaLoginCadastro() {
     const fazerLogin = async (callback: any) => {
         try {
             const resp = await login(loginEmail, loginSenha, callback)
-            if(!resp){
-                return
-            }else{
-                navigation.navigate('entregas')
-            }
         } catch (e) {
             console.log(e);
         }

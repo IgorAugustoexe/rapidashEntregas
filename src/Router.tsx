@@ -1,26 +1,29 @@
 import React from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
-import { AuthProvider } from './apis/AuthContext'
 import TelaLoginCadastro from './screens/TelaLoginCadastro'
 import TelaEntregas from './screens/TelaEntregas'
 import TelaDetalhesEntrega from './screens/TelaDetalhesEntrega'
 import ConfirmarEntrega from './screens/ConfirmarEntrega'
+import { useSelector } from 'react-redux'
+
 const Stack = createStackNavigator()
 
 export default function App() {
+    const store = useSelector(({ user }) => {
+        return {
+            user: user
+        }
+    })
     //Usar o token guardado na store para validar o usuario
     //Caso logado, ir para home
     //Caso deslogado, ir para login/registrar
     return (
-        <AuthProvider>
             <NavigationContainer>
                 <Stack.Navigator screenOptions={{ headerShown: false }}>
-                    <Stack.Screen
-                        name="loginCadastro"
-                        component={TelaLoginCadastro}
-                    />
-                    <Stack.Screen
+            {store.user.access_token ? 
+            <>
+            <Stack.Screen
                         name="entregas"
                         component={TelaEntregas}
                     />
@@ -37,9 +40,17 @@ export default function App() {
                             cardOverlayEnabled: true
                         }}
                     />
+            </>
+            :
+            <>
+             <Stack.Screen
+                        name="loginCadastro"
+                        component={TelaLoginCadastro}
+                    />
+            </>
+                         
+            }
                 </Stack.Navigator>
             </NavigationContainer>
-           
-        </AuthProvider>
     )
 }

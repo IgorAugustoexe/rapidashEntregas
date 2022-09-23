@@ -85,7 +85,6 @@ export default function TelaEntregas() {
     const sairApp = () => {
         console.log('saiu do app')
         logout()
-        navigation.goBack()
     }
 
     const abrirDetalhesPedido = (dadosEntrega: object) => {
