@@ -7,6 +7,10 @@ import { AuthProvider } from './src/apis/AuthContext'
 import { Provider } from 'react-redux'
 import { store, persistor } from './src/redux/store'
 import { PersistGate } from 'redux-persist/integration/react'
+import { enableLatestRenderer } from 'react-native-maps'
+
+enableLatestRenderer();
+
 
 
 const Redux = () => {

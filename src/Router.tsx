@@ -6,6 +6,8 @@ import TelaEntregas from './screens/TelaEntregas'
 import TelaDetalhesEntrega from './screens/TelaDetalhesEntrega'
 import ConfirmarEntrega from './screens/ConfirmarEntrega'
 import { useSelector } from 'react-redux'
+import TelaMapa from './screens/TelaMapa'
+
 
 const Stack = createStackNavigator()
 
@@ -30,6 +32,10 @@ export default function App() {
                     <Stack.Screen
                         name="detalhesEntrega"
                         component={TelaDetalhesEntrega}
+                    />
+                    <Stack.Screen
+                        name="mapa"
+                        component={TelaMapa}
                     />
                     <Stack.Screen
                         name="confirmarEntrega"
