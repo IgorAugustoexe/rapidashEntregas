@@ -1,10 +1,11 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useContext } from 'react'
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native'
 import { config, cores, estilos } from '../styles/Estilos'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faArrowRightFromBracket, faAngleRight } from '@fortawesome/free-solid-svg-icons'
 import { useNavigation } from '@react-navigation/native'
 import NavBar from '../components/NavBar'
+import { AuthContext } from '../apis/AuthContext'
 
 const ARRAY_PEDIDOS = [
     {
@@ -78,9 +79,12 @@ export default function TelaEntregas() {
     const [loaderReq, setLoaderReq] = useState<boolean>(false)
     const [erroReq, setErroReq] = useState<boolean>(false)
 
+    const { logout} = useContext(AuthContext)
+
+
     const sairApp = () => {
         console.log('saiu do app')
-        navigation.goBack()
+        logout()
     }
 
     const abrirDetalhesPedido = (dadosEntrega: object) => {
