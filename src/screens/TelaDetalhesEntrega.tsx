@@ -1,10 +1,13 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
 import { config, cores, estilos } from '../styles/Estilos'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faArrowLeft, faMapLocationDot } from '@fortawesome/free-solid-svg-icons'
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native'
 import NavBar from '../components/NavBar'
+import MapView, { Marker } from 'react-native-maps'
+import MapViewDirections from 'react-native-maps-directions'
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback'
 
 type navigation = {
     props: {
@@ -12,18 +15,28 @@ type navigation = {
     }
 }
 
+const options = {
+    enableVibrateFallBack: true,
+    ignoreAndroidSystemSettings: true
+}
+
+
 export default function TelaDetalhesEntrega() {
     const navigation = useNavigation<any>()
     const route = useRoute<RouteProp<navigation, 'props'>>()
 
     const infoEntrega = useRef<any>(route.params.dadosEntrega).current
 
+    const [regiao, setRegiao] = useState<any>({})
+    const [origem, setOrigem] = useState<any>({ latitude: -21.964768, longitude: -46.791870 })
+    const [destino, setDestino] = useState<any>({ latitude: -21.977346, longitude: -46.798710 })
+
     const confirmarEntrega = () => {
         navigation.navigate('confirmarEntrega')
     }
 
-    const abrirMapa = () => {
-        navigation.navigate('mapa')
+    const atualizarPosicao = (coordenada: any) => {
+        console.log(coordenada)
     }
 
     // COMPONENTES
@@ -33,31 +46,62 @@ export default function TelaDetalhesEntrega() {
             <View style={styles.containerCodPedido}>
                 <Text style={styles.txtAzul}>#{infoEntrega.codPedido}</Text>
             </View>
-            <View style={{ flexDirection: 'row' }}>
-                <View style={{ width: '70%' }}>
-                    <Text style={styles.txtAzul}>Destinatário</Text>
-                    <Text style={styles.txtPadrao} numberOfLines={1}>{infoEntrega.destinatario}</Text>
-                </View>
-                <TouchableOpacity style={styles.btnMapa} onPress={() => abrirMapa()}>
-                    <FontAwesomeIcon icon={faMapLocationDot} size={config.windowWidth / 12} color={cores.azul} />
-                    <Text style={[styles.txtPadrao, { fontSize: 10, color: cores.azul }]}>Ver no Mapa</Text>
-                </TouchableOpacity>
-            </View>
+            <Text style={styles.txtAzul}>Destinatário</Text>
+            <Text style={styles.txtPadrao} numberOfLines={1}>{infoEntrega.destinatario}</Text>
             <Text style={styles.txtAzul}>Endereco</Text>
-            <Text style={styles.txtPadrao}>{infoEntrega.logradouro}, {infoEntrega.numero}, {infoEntrega.bairro}</Text>
-            <Text style={styles.txtPadrao}>{infoEntrega.cidade} / {infoEntrega.uf}</Text>
+            <Text style={styles.txtPadrao} numberOfLines={1}>{infoEntrega.logradouro}, {infoEntrega.numero}, {infoEntrega.bairro}</Text>
+            <Text style={styles.txtPadrao} numberOfLines={1}>{infoEntrega.cidade} / {infoEntrega.uf}</Text>
             <TouchableOpacity style={styles.btnConfirmar} activeOpacity={0.9} onPress={() => confirmarEntrega()}>
                 <Text style={styles.txtBtn}>Confirmar Entrega</Text>
             </TouchableOpacity>
         </View>
     )
 
+    const Mapa = () => (
+        <View style={styles.container}>
+            <MapView
+                style={styles.map}
+                initialRegion={{
+                    latitude: -21.9650757,
+                    longitude: -46.7915971,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421
+                }} // região inicial
+                minZoomLevel={14} // minimo de zoom no mapa
+                showsUserLocation // mostrar localização do user
+                showsMyLocationButton // precisa do Shows userLocation
+                userLocationPriority='high' // precisão da localização
+                showsCompass // mostra bússola canto superiror esquerdo
+                //showsTraffic // mostrar tráfego na região
+                //loadingEnabled
+                //onUserLocationChange={(e) => setOrigem(e.nativeEvent.coordinate)}
+                zoomEnabled
+            >
+                <Marker
+                    coordinate={origem}
+                />
+                <Marker
+                    coordinate={destino}
+                />
+                <MapViewDirections
+                    apikey={'AIzaSyCff_T9kaWmUkjKtS37Me0ypoIL--Nxksg'}
+                    origin={origem}
+                    destination={destino}
+                    strokeColor="#3399CC" // cor da linha
+                    strokeWidth={2} // grossura da linha
+                />
+            </MapView>
+        </View >
+    )
+
     return (
         <View style={estilos.containerPrincipal}>
             <NavBar titulo={'Encomenda'} icone={faArrowLeft} />
             <DetalhesEntrega />
+            <Mapa />
         </View>
     )
+
 }
 
 const styles = StyleSheet.create({
@@ -114,7 +158,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     map: {
-        width: '30%',
-        height: '30%',
-    },
+        width: '100%',
+        height: '100%'
+    }
 })

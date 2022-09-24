@@ -93,8 +93,8 @@ export default function TelaLoginCadastro() {
     }
 
     const controleLoginCadastro = () => {
-        
-        
+
+
         setLoaderBtn(true)
         if (cadastro) {
             cadastroEmailInvalido && setCadastroEmailInvalido(false)
@@ -171,6 +171,7 @@ export default function TelaLoginCadastro() {
     }
 
     const fazerLogin = async (callback: any) => {
+        navigation.navigate('entregas')
         try {
             const resp = await login(loginEmail, loginSenha, callback)
         } catch (e) {
@@ -185,7 +186,7 @@ export default function TelaLoginCadastro() {
                 email: cadastroEmail,
                 password: cadastroSenha,
                 fullName: nome,
-                cpf:cpf
+                cpf: cpf
             }, callback)
         } catch (e) {
             console.log(e);
@@ -196,7 +197,7 @@ export default function TelaLoginCadastro() {
     // COMPONENTES
 
     const Cabecalho = () => (
-        <View style={{ alignItems: 'center', marginTop: 15 }}>
+        <View style={{ alignItems: 'center', marginTop: config.windowWidth / 10 }}>
             <Image
                 source={require('../../assets/imgs/rapidashLogo.png')}
                 style={{ width: 150, height: 150 }}
