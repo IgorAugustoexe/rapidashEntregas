@@ -34,12 +34,12 @@ export const AuthProvider = ({ children }) => {
     //  	 return Promise.reject(error);
     //  });
 
-    //   axios.interceptors.response.use(function (response) {
-    //      console.log('Response:', JSON.stringify(response, null, 2))
-    //  	 return response;
-    //  }, function (error) {
-    //  	 return Promise.reject(error);
-    //  });
+      axios.interceptors.response.use(function (response) {
+         console.log('Response:', JSON.stringify(response, null, 2))
+     	 return response;
+     }, function (error) {
+     	 return Promise.reject(error);
+     });
 
     //REGISTER
     const register = async (object, callback) => {
@@ -53,12 +53,14 @@ export const AuthProvider = ({ children }) => {
         try {
             const aux = await axios.post(`/user`, obj);
             const req = await aux.data
+            console.log(req)
             login(req.email,object.password,callback)
             popUpErroGenerico({ type: 'customSuccess', text1: 'Usuário cadastrado com sucesso', text2: `Por favor aguarde enquanto iniciamos a sua sessão` })
             return req
         } catch (e) {
+            callback(false)
             console.log(`Error while registering user: ${e}`);
-            popUpErroGenerico({ type: 'customError', text1: 'Alguma coisa aconteceu', text2: `Por favor verfique os dados, a sua conexão e tente novamente` })
+            popUpErroGenerico({ type: 'customError', text1: 'Alguma coisa aconteceu', text2: `Por favor verfique os dados: ${e.response.data.meta.target[0].replace(/['"]+/g, '').replace('fullName','Nome Completo')}, a sua conexão e tente novamente` })
             return e;
         } 
 
@@ -87,7 +89,7 @@ const login = async (email, password, callback) => {
         const res = await axios.post(`/auth`, { email, password });
         aux = await res.data;
         userInfo["access_token"] = aux.access_token;
-  
+       
         try {
             const config = { headers: { 'Authorization': `Bearer ${aux.access_token}` } };
             const resLogin = await getUser(`user`, config);
