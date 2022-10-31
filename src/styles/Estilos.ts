@@ -1,4 +1,4 @@
-import { Dimensions } from 'react-native';
+import { Dimensions, StyleProp } from 'react-native';
 
 const largura = Dimensions.get("window").width
 const altura = Dimensions.get("window").height
@@ -21,11 +21,16 @@ const cores = {
     fontePadrao: '#181818',
 }
 
-const estilos = {
+const estilosGlobais: any = {
     containerPrincipal: {
         flex: 1,
         backgroundColor: cores.backgroundPadrao
+    },
+    txtListaVazia: {
+        fontSize: 14,
+        color: cores.fontePadrao,
+        fontWeight: 'bold'
     }
 }
 
-export { config, cores, estilos }
+export { config, cores, estilosGlobais }

@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect, useRef, useContext } from 'react'
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, Image, ActivityIndicator, Animated, PermissionsAndroid, Alert, Linking } from 'react-native'
-import { config, cores, estilos } from '../styles/Estilos'
+import { config, cores, estilosGlobais } from '../styles/Estilos'
 import { useNavigation } from '@react-navigation/native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faEnvelope, faIdCard, faKey, faUser } from '@fortawesome/free-solid-svg-icons'
@@ -93,8 +93,6 @@ export default function TelaLoginCadastro() {
     }
 
     const controleLoginCadastro = () => {
-
-
         setLoaderBtn(true)
         if (cadastro) {
             cadastroEmailInvalido && setCadastroEmailInvalido(false)
@@ -171,13 +169,11 @@ export default function TelaLoginCadastro() {
     }
 
     const fazerLogin = async (callback: any) => {
-        navigation.navigate('entregas')
         try {
             const resp = await login(loginEmail, loginSenha, callback)
         } catch (e) {
-            console.log(e);
+            console.log(e)
         }
-        //console.log('implementar login')
     }
 
     const fazerCadastro = async (callback: any) => {
@@ -341,7 +337,7 @@ export default function TelaLoginCadastro() {
     )
 
     return (
-        <View style={estilos.containerPrincipal}>
+        <View style={estilosGlobais.containerPrincipal}>
             <KeyboardAwareScrollView
                 extraHeight={config.windowWidth / 2}
                 keyboardShouldPersistTaps={'handled'}

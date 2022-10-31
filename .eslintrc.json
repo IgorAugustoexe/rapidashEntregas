@@ -1,14 +1,11 @@
 {
   "env": {
     "browser": true,
-    "es2021": true,
-    "amd": true,
-    "node": true,
-    "jest": true
+    "es2021": true
   },
   "extends": [
-    "eslint:recommended",
     "plugin:react/recommended",
+    "plugin:jsx-a11y/recommended",
     "plugin:@typescript-eslint/recommended"
   ],
   "parser": "@typescript-eslint/parser",
@@ -21,19 +18,48 @@
   },
   "plugins": [
     "react",
+    "jsx-a11y",
     "@typescript-eslint"
   ],
   "rules": {
-    "@typescript-eslint/no-explicit-any": [ // remove "warning Unexpected any"
-      "off"
+    "comma-dangle": [ // remove a obrigatoriedade de colocar "," na ultima propriedade de um array/objeto
+      "error",
+      "never"
     ],
-    "react/prop-types": [ // remove  "error  'navigation' is missing in props validation"
+    "semi": [ // remove a obrigatoriedade de colocar ";" no final de cada linha
+      2,
+      "never"
+    ],
+    "eol-last": 0, // remove a obrigatoriedade de incluir uma linha vazia no fim de cada arquivo
+    "no-multiple-empty-lines": [
       "error",
       {
-        "ignore": [
-          "navigation"
+        "max": 1,
+        "maxEOF": 0
+      }
+    ],
+    "react/jsx-filename-extension": [
+      1,
+      {
+        "extensions": [
+          ".tsx"
         ]
       }
+    ],
+    "react/prop-types": "off",
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/self-closing-comp": "warn",
+    "@typescript-eslint/no-explicit-any": [
+      "off"
     ]
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    },
+    "import/resolver": {
+      "typescript": {}
+    }
   }
 }

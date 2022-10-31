@@ -7,6 +7,7 @@ import { AuthProvider } from './src/apis/AuthContext'
 import { Provider } from 'react-redux'
 import { store, persistor } from './src/redux/store'
 import { PersistGate } from 'redux-persist/integration/react'
+import Alerta from './src/components/Alerta'
 import { enableLatestRenderer } from 'react-native-maps'
 
 enableLatestRenderer();
@@ -19,6 +20,7 @@ const Redux = () => {
             <AuthProvider>
                 <PersistGate loading={null} persistor={persistor}>
                     <App />
+                    <Alerta />
                     <Toast config={toastConfig} />
                 </PersistGate>
             </AuthProvider>
