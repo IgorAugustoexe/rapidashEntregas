@@ -34,12 +34,12 @@ export const AuthProvider = ({ children }) => {
     //  	 return Promise.reject(error);
     //  });
 
-      axios.interceptors.response.use(function (response) {
-         console.log('Response:', JSON.stringify(response, null, 2))
-     	 return response;
-     }, function (error) {
-     	 return Promise.reject(error);
-     });
+    //   axios.interceptors.response.use(function (response) {
+    //      console.log('Response:', JSON.stringify(response, null, 2))
+    //  	 return response;
+    //  }, function (error) {
+    //  	 return Promise.reject(error);
+    //  });
 
     //REGISTER
     const register = async (object, callback) => {
@@ -80,7 +80,23 @@ const getUser = async (type, config) => {
     }
 
 }
+const getData = async (type) => {
+    console.log(type)
+    try {
+        const aux = await axios.get(`${type}`);
 
+        const resp = await aux.data //store.type
+        //console.log(JSON.stringify(resp, null, "\t"));
+        //console.log(JSON.stringify(resp[0].student, null, "\t"));
+        return resp;
+
+
+    } catch (e) {
+        console.log(e)
+        popUpErroGenerico({ type: 'customError', text1: 'Alguma coisa aconteceu', text2: `Por favor verfique a sua conexão e tente novamente` })
+        return;
+    }
+}
 const login = async (email, password, callback) => {
     let userInfo = {};
     let aux;
@@ -178,6 +194,7 @@ return (
             register,
             login,
             logout,
+            getData
         }}>
         {children}
     </AuthContext.Provider>

@@ -8,6 +8,7 @@ import NavBar from '../components/NavBar'
 import { AuthContext } from '../apis/AuthContext'
 import Geolocation from '@react-native-community/geolocation'
 import ErroReq from '../components/ErroReq'
+import { Delivery } from '../types/types'
 
 const PEDIDOS_ENTREGAR = [
     {
@@ -161,13 +162,38 @@ export default function TelaEntregas() {
     const [listaPedidos, setListaPedidos] = useState<any>(PEDIDOS_ENTREGAR)
     const [listaSelecionada, setListaSelecionada] = useState<number>(0)
 
-    const { logout } = useContext(AuthContext)
+    const { logout, getData } = useContext(AuthContext)
+    const [load, setLoad] = useState(true)
+    const [entregues, setEntregues] = useState<Delivery[]>([]);
+    const [disponiveis, setDisponiveis] = useState<Delivery[]>([]);
 
     useEffect(() => {
         didMount()
-    }, [])
+        navigation.addListener('focus', () => setLoad(!load))
+    }, [load, navigation])
 
-    const didMount = () => {
+    const didMount = async () => {
+        if (load) {
+            const dt = await getData(`delivery/all`)
+
+            const dtEntregues = dt.filter((d:Delivery) => {
+                if(d.delivered){
+                    return d
+                } 
+            })
+            const dtDisponiveis = dt.filter((d:Delivery) => {
+                if(!d.userId){
+                    return d
+                }
+            })
+            setEntregues([])
+            setEntregues([...dtEntregues])
+            setDisponiveis([])
+            setDisponiveis([...dtDisponiveis])
+
+            //console.log('Entregues ---- ', JSON.stringify(dtEntregues, null, 2))
+            //console.log('Dispoíveis ---- ', JSON.stringify(dtDisponiveis, null, 2))
+        }
         pegarPedidos()
         pegarLocalizacaoUser()
     }
@@ -206,11 +232,11 @@ export default function TelaEntregas() {
                 break
             case 1:
                 setListaSelecionada(1)
-                setListaPedidos(PEDIDOS_DISPONIVEIS)
+                setListaPedidos(disponiveis)
                 break
             case 2:
                 setListaSelecionada(2)
-                setListaPedidos(PEDIDOS_ENTREGUES)
+                setListaPedidos(entregues)
                 break
             default:
                 break;
@@ -242,6 +268,8 @@ export default function TelaEntregas() {
         </View>
     )
 
+    
+
     const ListaPedidos = () => (
         <FlatList
             style={{ height: config.windowHeight }}
@@ -259,19 +287,21 @@ export default function TelaEntregas() {
                     >
                         <View style={{ width: '90%' }}>
                             <View style={[styles.containerIdPedido, listaPedidos == PEDIDOS_ENTREGUES && { backgroundColor: cores.cinzaEscuro }]}>
-                                <Text style={[styles.txtIdPedido, listaPedidos == PEDIDOS_ENTREGUES && { color: cores.backgroundPadrao }]}>#{item.codPedido}</Text>
+                                <Text style={[styles.txtIdPedido, listaPedidos == PEDIDOS_ENTREGUES && { color: cores.backgroundPadrao }]}>#{item.codPedido ? item.codPedido : "42221425BR"}</Text>
                             </View>
                             <View style={styles.divisorTxts}>
                                 <FontAwesomeIcon icon={faUser} size={config.windowWidth / 20} color={cores.azul} />
-                                <Text style={styles.txtInfoPedido}>{item.destinatario}</Text>
+                                <Text style={styles.txtInfoPedido}>{item.destiny ? item.destiny : "Glauco Souza"}</Text>
                             </View>
                             <View style={styles.divisorTxts}>
                                 <FontAwesomeIcon icon={faLocationDot} size={config.windowWidth / 20} color={cores.azul} />
-                                <Text style={styles.txtInfoPedido}>{item.logradouro}, {item.numero} - {item.bairro}</Text>
+                                <Text style={styles.txtInfoPedido}>{item?.address?.street ? item?.address?.street : "Rua"}, 
+                                {item?.address?.number ? item?.address?.number : " 66"} - 
+                                {item?.address?.district ? item?.address?.district : "Bairro"}</Text>
                             </View>
                             <View style={styles.divisorTxts}>
                                 <FontAwesomeIcon icon={faTreeCity} size={config.windowWidth / 20} color={cores.azul} />
-                                <Text style={styles.txtInfoPedido}>{item.cidade} / {item.uf}</Text>
+                                <Text style={styles.txtInfoPedido}>{item.city ? item.city : "São João da Boa Vista"} / {item.state ? item.state : "SP"}</Text>
                             </View>
                         </View>
                         {listaPedidos == PEDIDOS_ENTREGAR &&
