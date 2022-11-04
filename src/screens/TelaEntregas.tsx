@@ -155,7 +155,7 @@ const PEDIDOS_ENTREGUES = [
 export default function TelaEntregas() {
     const navigation = useNavigation<any>()
 
-    const [localUser, setLocalUser] = useState<object>({})
+    const [localUser, setLocalUser] = useState<any>({})
     const [loaderReq, setLoaderReq] = useState<boolean>(false)
     const [erroReq, setErroReq] = useState<boolean>(false)
     const [listaPedidos, setListaPedidos] = useState<any>(PEDIDOS_ENTREGAR)
@@ -188,10 +188,11 @@ export default function TelaEntregas() {
                 longitudeDelta: 0.0421
             })
         },
-            () => { console.log('erro') }, {
+            () => { console.log('usuário não liberou localização') }, {
             enableHighAccuracy: true,
             timeout: 2000
         })
+        console.log(localUser)
     }
 
     const abrirDetalhesPedido = (dadosEntrega: object, local: object) => {

@@ -21,6 +21,9 @@ export default function TelaDetalhesEntrega() {
 
     const infoEntrega = useRef<any>(route.params.dadosEntrega).current
 
+    const latitudeDelta = useRef<number>(0.0922).current
+    const longitudeDelta = useRef<number>(0.0421).current
+
     const [localUsuario, setLocalUsuario] = useState<any>({})
     const [destino, setDestino] = useState<any>()
 
@@ -29,16 +32,26 @@ export default function TelaDetalhesEntrega() {
     }, [])
 
     const didMount = () => {
-        setLocalUsuario(route.params.local)
-        setDestino({ latitude: route.params.dadosEntrega.lat, longitude: route.params.dadosEntrega.lon })
+        setDestino({
+            latitude: route.params.dadosEntrega.lat,
+            longitude: route.params.dadosEntrega.lon,
+            latitudeDelta,
+            longitudeDelta
+        })
+        if (route.params.local.latitude && route.params.local.longitude) {
+            setLocalUsuario(route.params.local)
+            return
+        }
+        setLocalUsuario({
+            latitude: route.params.dadosEntrega.lat,
+            longitude: route.params.dadosEntrega.lon,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421
+        })
     }
 
     const confirmarEntrega = () => {
         navigation.navigate('confirmarEntrega')
-    }
-
-    const atualizarPosicao = (coordenada: any) => {
-        console.log(coordenada)
     }
 
     // COMPONENTES
@@ -69,7 +82,7 @@ export default function TelaDetalhesEntrega() {
         <View style={styles.container}>
             <MapView
                 style={styles.map}
-                initialRegion={localUsuario}
+                initialRegion={destino}
                 minZoomLevel={1} // minimo de zoom no mapa
                 showsUserLocation // mostrar localização do user
                 showsMyLocationButton // precisa do Shows userLocation
@@ -85,17 +98,19 @@ export default function TelaDetalhesEntrega() {
                     coordinate={destino}
                 />
 
-                <MapViewDirections
-                    apikey={'AIzaSyCff_T9kaWmUkjKtS37Me0ypoIL--Nxksg'}
-                    origin={localUsuario}
-                    waypoints={[
-                        { "latitude": -21.966335, "longitude": -46.799520 },
-                        { "latitude": -21.951022, "longitude": -46.796142 }
-                    ]}
-                    destination={destino}
-                    strokeColor="#3399CC" // cor da linha
-                    strokeWidth={2} // grossura da linha
-                />
+                {(route.params.local.latitude && route.params.local.longitude) &&
+                    <MapViewDirections
+                        apikey={'AIzaSyCff_T9kaWmUkjKtS37Me0ypoIL--Nxksg'}
+                        origin={localUsuario}
+                        waypoints={[
+                            { "latitude": -21.966335, "longitude": -46.799520 },
+                            { "latitude": -21.951022, "longitude": -46.796142 }
+                        ]}
+                        destination={destino}
+                        strokeColor="#3399CC" // cor da linha
+                        strokeWidth={2} // grossura da linha
+                    />
+                }
             </MapView>
         </View >
     )
