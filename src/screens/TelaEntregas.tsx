@@ -238,13 +238,14 @@ export default function TelaEntregas() {
         });
       },
       () => {
-        console.log('erro');
+        console.log('usuário não liberou localização');
       },
       {
         enableHighAccuracy: true,
         timeout: 2000,
       },
     );
+    console.log(localUser);
   };
 
   const abrirDetalhesPedido = (dadosEntrega: object, local: object) => {
