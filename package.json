@@ -29,6 +29,7 @@
     "react-native": "0.70.0",
     "react-native-dotenv": "^3.3.1",
     "react-native-fs": "^2.20.0",
+    "react-native-geocoding": "^0.5.0",
     "react-native-gesture-handler": "^2.6.0",
     "react-native-haptic-feedback": "^1.14.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",

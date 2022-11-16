@@ -4,12 +4,13 @@ import { BASE_URL, KEY } from './config';
 import { popUpErroGenerico } from '../screens/PopUpErroGenerico';
 import { setInfo, resetUser } from '../redux/reducers/usuarioReducer';
 import { useDispatch, useSelector } from 'react-redux';
+import Geocoder from 'react-native-geocoding';
 
 //Cria um contexto para ser utilizado pelos elementos filho
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-
+    Geocoder.init("AIzaSyCff_T9kaWmUkjKtS37Me0ypoIL--Nxksg");
     const store = useSelector(({ user }) => {
         return {
             userDebug: user,
@@ -142,6 +143,22 @@ const login = async (email, password, callback) => {
     //const config = { headers: { 'Authorization': `Bearer ${aux.access_token}` } };// Previamente, será utilizado um token para autorização.
     //dispatch(funcaoStore(userInfo)); Para salvar o usuario na store
 };
+
+const Geotranslate = async (address) =>{
+try{
+    const resp = Geocoder.from(`${address}`)
+    .then(json => {
+        var location = json.results[0].geometry.location;
+        return location
+    }).catch(error => console.warn(error));
+
+    return resp
+}catch(err){
+    console.warn(error)
+}
+   
+
+}
 //LOGOUT
 const logout = () => {
     if(isLogged){
@@ -194,7 +211,8 @@ return (
             register,
             login,
             logout,
-            getData
+            getData,
+            Geotranslate
         }}>
         {children}
     </AuthContext.Provider>

@@ -175,7 +175,7 @@ export default function TelaEntregas() {
   const [listaPedidos, setListaPedidos] = useState<any>(PEDIDOS_ENTREGAR);
   const [listaSelecionada, setListaSelecionada] = useState<number>(0);
 
-  const {logout, getData} = useContext(AuthContext);
+  const {logout, getData, Geotranslate} = useContext(AuthContext);
   const [load, setLoad] = useState(true);
   const [entregues, setEntregues] = useState<Delivery[]>([]);
   const [disponiveis, setDisponiveis] = useState<Delivery[]>([]);
@@ -184,17 +184,27 @@ export default function TelaEntregas() {
     didMount();
     navigation.addListener('focus', () => setLoad(!load));
   }, [load, navigation]);
+
   const didMount = async () => {
     if (load) {
-      const dt = await getData(`delivery/all`);
-      console.log(dt);
+      let dt = await getData(`delivery/all`);
 
-      const dtEntregues = dt.filter((d: Delivery) => {
+      dt.forEach(async (element: any) => {
+        try {
+          console.log('Aqui');
+          const geocode = await Geotranslate(
+            `${dt.address.street}, ${dt.address.number}, ${dt.address.district}, ${dt.address.city} - ${dt.address.state}`,
+          );
+          element['geo'] = geocode;
+        } catch (erro: any) {}
+      });
+
+      const dtEntregues = await dt.filter((d: Delivery) => {
         if (d.delivered) {
           return d;
         }
       });
-      const dtDisponiveis = dt.filter((d: Delivery) => {
+      const dtDisponiveis = await dt.filter((d: Delivery) => {
         if (!d.userId) {
           return d;
         }
@@ -203,14 +213,13 @@ export default function TelaEntregas() {
       setEntregues([...dtEntregues]);
       setDisponiveis([]);
       setDisponiveis([...dtDisponiveis]);
-
       //console.log('Entregues ---- ', JSON.stringify(dtEntregues, null, 2))
       //console.log('Dispoíveis ---- ', JSON.stringify(dtDisponiveis, null, 2))
     }
     pegarPedidos();
     pegarLocalizacaoUser();
   };
-
+  console.log(JSON.stringify(disponiveis, null, '\t'));
   const pegarPedidos = () => {
     // Implementar a requisição
     setLoaderReq(true);
