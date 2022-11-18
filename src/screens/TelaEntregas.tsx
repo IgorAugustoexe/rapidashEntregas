@@ -457,7 +457,7 @@ export default function TelaEntregas() {
       )}
       <TouchableOpacity
         onPress={() => {
-          if (!load) {
+          if (!load && Object.keys(atribuidas).length > 0) {
             navigation.navigate('mapaTrajeto', {
               dadosEntrega: traject,
               local: localUser,

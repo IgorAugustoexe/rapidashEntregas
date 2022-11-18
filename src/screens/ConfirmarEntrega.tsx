@@ -22,6 +22,8 @@ export default function ConfirmarEntrega() {
   const complete = (id: string) => {
     const object = {deliveryId: id, file: imagem};
     completeDelivery(object);
+    navigation.goBack();
+    navigation.navigate('entregas');
   };
 
   return (

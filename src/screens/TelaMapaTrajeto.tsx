@@ -77,7 +77,18 @@ export default function TelaMapaTrajeto() {
       latitude: route.params.local.latitude,
       longitude: route.params.local.longitude,
     });
-    setPontos(traject);
+    if (Object.keys(traject).length) {
+      setPontos([
+        {
+          latitude: route.params.local.latitude,
+          longitude: route.params.local.longitude,
+        },
+        ...traject,
+      ]);
+    } else {
+      setPontos(traject);
+    }
+
     setDestino(traject[traject.length - 1]);
   };
   console.log(route.params.local);
