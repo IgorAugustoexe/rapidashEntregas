@@ -82,9 +82,10 @@ const getUser = async (type, config) => {
 
 }
 const getData = async (type) => {
-    console.log(type)
+    const config = { headers: { 'Authorization': `Bearer ${store.accessToken}` } };
+
     try {
-        const aux = await axios.get(`${type}`);
+        const aux = await axios.get(`${type}`,config);
 
         const resp = await aux.data //store.type
         //console.log(JSON.stringify(resp, null, "\t"));
@@ -98,6 +99,81 @@ const getData = async (type) => {
         return;
     }
 }
+
+const assignDelivery = async (id) =>{
+    const options = {
+        method: 'PATCH',
+        url: `${BASE_URL}/delivery/assign`,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${store.accessToken}`
+        },
+        data: {deliveryId: id}
+      };
+      
+      
+    try {
+        const aux = await axios.request(options);
+
+        const resp = await aux.data //store.type
+        //console.log(JSON.stringify(resp, null, "\t"));
+        //console.log(JSON.stringify(resp[0].student, null, "\t"));
+        return resp;
+
+
+    } catch (e) {
+        console.log(e)
+        popUpErroGenerico({ type: 'customError', text1: 'Alguma coisa aconteceu', text2: `Por favor verfique a sua conexão e tente novamente` })
+        return;
+    }
+}
+
+const completeDelivery = async (object) =>{
+    const form = returnFormData(object);
+    const options = {
+        method: 'PATCH',
+        url: `${BASE_URL}/delivery/complete`,
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${store.accessToken}`
+          },
+        data: form,
+    };
+    try {
+        const aux = await axios.request(options);
+
+        const resp = await aux.data //store.type
+        //console.log(JSON.stringify(resp, null, "\t"));
+        //console.log(JSON.stringify(resp[0].student, null, "\t"));
+        return resp;
+
+
+    } catch (e) {
+        console.log(e)
+        popUpErroGenerico({ type: 'customError', text1: 'Alguma coisa aconteceu', text2: `Por favor verfique a sua conexão e tente novamente` })
+        return;
+    }
+}
+
+const returnFormData = ({ file, ...data }) => {
+    let form_data = new FormData();
+    // console.log(file.uri.split('/').pop().split('?')[0])
+    for (var key in data) {
+        form_data.append(key, data[key]);
+    }
+    console.log(file.uri.split('/').pop())
+    if (file) {
+        form_data.append('file', {
+            uri: file.uri,
+            name: file.name ? `${file.name}` : `${file.uri.split('/').pop().split('?')[0]}`,
+            type: 'image/jpeg',
+        })
+    }
+  
+
+    return form_data
+}
+
 const login = async (email, password, callback) => {
     let userInfo = {};
     let aux;
@@ -212,7 +288,9 @@ return (
             login,
             logout,
             getData,
-            Geotranslate
+            Geotranslate,
+            assignDelivery,
+            completeDelivery
         }}>
         {children}
     </AuthContext.Provider>

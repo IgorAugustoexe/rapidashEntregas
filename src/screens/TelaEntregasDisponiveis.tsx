@@ -58,29 +58,28 @@ export default function TelaEntregasDisponiveis() {
   const [erroReq, setErroReq] = useState<boolean>(false);
   const [loaderBtnIndex, setLoaderBtnIndex] = useState<number>();
   const [listaPedidos, setListaPedidos] = useState<any>(PEDIDOS_ENTREGUES);
-  const {logout, getData} = useContext(AuthContext);
+  const {logout, getData, assignDelivery} = useContext(AuthContext);
   const [load, setLoad] = useState(true);
   const [disponiveis, setDisponiveis] = useState<Delivery[]>([]);
 
   useEffect(() => {
-    didMount();
+    if (load) {
+      didMount();
+    }
   }, []);
 
   const didMount = async () => {
-    if (load) {
-      const dt = await getData(`delivery/all`);
-
-      const dtDisponiveis = dt.filter((d: Delivery) => {
-        if (!d.userId) {
-          return d;
-        }
-      });
+    try {
+      const dt = await getData(`delivery/available`);
       setDisponiveis([]);
-      setDisponiveis([...dtDisponiveis]);
-
-      //console.log('Entregues ---- ', JSON.stringify(dtEntregues, null, 2))
-      //console.log('Dispoíveis ---- ', JSON.stringify(dtDisponiveis, null, 2))
+      setDisponiveis([...dt]);
+    } catch (e) {
+      console.log(e);
     }
+
+    //console.log('Entregues ---- ', JSON.stringify(dtEntregues, null, 2))
+    //console.log('Dispoíveis ---- ', JSON.stringify(dtDisponiveis, null, 2))
+
     pegarPedidos();
     pegarPedidosDisp();
   };
@@ -102,18 +101,21 @@ export default function TelaEntregasDisponiveis() {
     navigation.addListener('focus', () => setLoad(!load));
   }, [load, navigation]);
 
-  const abrirModalConfirmacao = (index: number) => {
+  const abrirModalConfirmacao = (index: number, id: string) => {
     navigation.navigate('modalerro', {
       icone: faTruck,
       texto: 'Deseja aceitar o pedido?',
       btnTxt: 'não',
       btn2Txt: 'sim',
-      btn2Func: () => aceitarPedido(index),
+      btn2Func: () => aceitarPedido(index, id),
     });
   };
 
-  const aceitarPedido = (index: number) => {
+  const aceitarPedido = (index: number, id: string) => {
     setLoaderBtnIndex(index);
+    assignDelivery(id);
+    didMount();
+    setLoaderBtnIndex(undefined);
     // Implementar requisição
   };
 
@@ -162,7 +164,7 @@ export default function TelaEntregasDisponiveis() {
                   color={cores.azul}
                 />
                 <Text style={styles.txtInfoPedido}>
-                  {item.street}, {item.numero}
+                  {item.address.street}, {item.address.number}
                 </Text>
               </View>
               <View style={styles.divisorTxts}>
@@ -172,13 +174,14 @@ export default function TelaEntregasDisponiveis() {
                   color={cores.azul}
                 />
                 <Text style={styles.txtInfoPedido}>
-                  {item.bairro} - {item.cidade} / {item.uf}
+                  {item.address.district} - {item.address.city} /{' '}
+                  {item.address.state}
                 </Text>
               </View>
             </View>
             <TouchableOpacity
               style={styles.btnAceitarPedido}
-              onPress={() => abrirModalConfirmacao(index)}
+              onPress={() => abrirModalConfirmacao(index, item.id)}
               disabled={loaderBtnIndex != null}>
               {loaderBtnIndex == index ? (
                 <ActivityIndicator

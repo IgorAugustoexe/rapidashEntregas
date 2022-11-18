@@ -17,6 +17,7 @@ import {
   faUser,
   faLocationDot,
   faTreeCity,
+  faMapLocationDot,
 } from '@fortawesome/free-solid-svg-icons';
 import {useNavigation} from '@react-navigation/native';
 import NavBar from '../components/NavBar';
@@ -24,6 +25,7 @@ import {AuthContext} from '../apis/AuthContext';
 import Geolocation from '@react-native-community/geolocation';
 import ErroReq from '../components/ErroReq';
 import {Delivery} from '../types/types';
+import {useDispatch, useSelector} from 'react-redux';
 
 const PEDIDOS_ENTREGAR = [
   {
@@ -168,17 +170,26 @@ const PEDIDOS_ENTREGUES = [
 
 export default function TelaEntregas() {
   const navigation = useNavigation<any>();
+  const store = useSelector(({user}) => {
+    return {
+      userDebug: user,
+      user: user.user,
+      accessToken: user.access_token,
+    };
+  });
 
   const [localUser, setLocalUser] = useState<object>({});
   const [loaderReq, setLoaderReq] = useState<boolean>(false);
   const [erroReq, setErroReq] = useState<boolean>(false);
-  const [listaPedidos, setListaPedidos] = useState<any>(PEDIDOS_ENTREGAR);
+  const [listaPedidos, setListaPedidos] = useState<any>([]);
   const [listaSelecionada, setListaSelecionada] = useState<number>(0);
 
   const {logout, getData, Geotranslate} = useContext(AuthContext);
   const [load, setLoad] = useState(true);
   const [entregues, setEntregues] = useState<Delivery[]>([]);
   const [disponiveis, setDisponiveis] = useState<Delivery[]>([]);
+  const [atribuidas, setAtribuidas] = useState<Delivery[]>([]);
+  const [traject, setTraject] = useState<Delivery[]>([]);
 
   useEffect(() => {
     didMount();
@@ -187,43 +198,57 @@ export default function TelaEntregas() {
 
   const didMount = async () => {
     if (load) {
-      let dt = await getData(`delivery/all`);
+      setLoad(false);
+      try {
+        const dt = await getData(`delivery/assigned`);
+        const dtDisponiveis = await getData(`delivery/available`);
+        let t: any = [];
 
-      dt.forEach(async (element: any) => {
-        try {
-          console.log('Aqui');
-          const geocode = await Geotranslate(
-            `${dt.address.street}, ${dt.address.number}, ${dt.address.district}, ${dt.address.city} - ${dt.address.state}`,
-          );
-          element['geo'] = geocode;
-        } catch (erro: any) {}
-      });
+        const dtAtribuidas = await dt.filter((d: Delivery) => {
+          if (!d.receivedAt) {
+            return d;
+          }
+        });
+        dtAtribuidas.forEach(async (element: any) => {
+          let address = `${element.address.street}, ${element.address.number}, ${element.address.district}, ${element.address.city} - ${element.address.state}`;
+          try {
+            const geocode = await Geotranslate(address);
+            element['geo'] = geocode;
+            t.push({
+              latitude: geocode.lat,
+              longitude: geocode.lng,
+            });
+          } catch (erro: any) {}
+        });
 
-      const dtEntregues = await dt.filter((d: Delivery) => {
-        if (d.delivered) {
-          return d;
-        }
-      });
-      const dtDisponiveis = await dt.filter((d: Delivery) => {
-        if (!d.userId) {
-          return d;
-        }
-      });
-      setEntregues([]);
-      setEntregues([...dtEntregues]);
-      setDisponiveis([]);
-      setDisponiveis([...dtDisponiveis]);
+        const dtEntregues = await dt.filter((d: Delivery) => {
+          if (d.receivedAt) {
+            return d;
+          }
+        });
+
+        setEntregues([]);
+        setEntregues([...dtEntregues]);
+        setDisponiveis([]);
+        setDisponiveis([...dtDisponiveis]);
+        setAtribuidas([]);
+        setAtribuidas(dtAtribuidas);
+        setListaPedidos([]);
+        setListaPedidos(dtAtribuidas);
+        setTraject(t);
+      } catch (e) {
+        console.log(e);
+      }
+
       //console.log('Entregues ---- ', JSON.stringify(dtEntregues, null, 2))
       //console.log('Dispoíveis ---- ', JSON.stringify(dtDisponiveis, null, 2))
     }
     pegarPedidos();
     pegarLocalizacaoUser();
   };
-  console.log(JSON.stringify(disponiveis, null, '\t'));
   const pegarPedidos = () => {
     // Implementar a requisição
     setLoaderReq(true);
-    console.log('lista de pedidos');
     setLoaderReq(false);
   };
 
@@ -245,18 +270,19 @@ export default function TelaEntregas() {
         timeout: 2000,
       },
     );
-    console.log(localUser);
   };
 
   const abrirDetalhesPedido = (dadosEntrega: object, local: object) => {
     navigation.navigate('detalhesEntrega', {dadosEntrega, local});
   };
-
+  const goToMap = () => {
+    navigation.navigate('telaMapaTrajeto', {traject, localUser});
+  };
   const alternarLista = (valor: number) => {
     switch (valor) {
       case 0:
         setListaSelecionada(0);
-        setListaPedidos(PEDIDOS_ENTREGAR);
+        setListaPedidos(atribuidas);
         break;
       case 1:
         setListaSelecionada(1);
@@ -403,7 +429,6 @@ export default function TelaEntregas() {
       </TouchableOpacity>
     </View>
   );
-
   const ErroLoader = () => (
     <View style={{flex: 1, justifyContent: 'center'}}>
       {loaderReq ? (
@@ -423,12 +448,29 @@ export default function TelaEntregas() {
         iconeDir={faFileCirclePlus}
         funcBtnDir={() => navigation.navigate('disponiveis')}
       />
+
       <SelecaoPedidos />
       {erroReq || loaderReq ? (
         <ErroLoader />
       ) : (
         <Fragment>{ListaPedidos()}</Fragment>
       )}
+      <TouchableOpacity
+        onPress={() => {
+          if (!load) {
+            navigation.navigate('mapaTrajeto', {
+              dadosEntrega: traject,
+              local: localUser,
+            });
+          }
+        }}
+        style={styles.iconTrajeto}>
+        <FontAwesomeIcon
+          icon={faMapLocationDot}
+          size={config.windowWidth / 10}
+          color={'white'}
+        />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -488,5 +530,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: cores.backgroundPadrao,
     fontSize: 15,
+  },
+  iconTrajeto: {
+    position: 'absolute',
+    backgroundColor: `${cores.azul}`,
+    width: '15%',
+    padding: 10,
+    alignItems: 'center',
+    marginTop: config.windowHeight / 1.15,
+    marginLeft: config.windowWidth / 1.2,
+    borderRadius: 8,
   },
 });

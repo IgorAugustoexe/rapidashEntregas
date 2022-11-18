@@ -19,6 +19,8 @@ const cores = {
     azul: '#0073B3',
     vermelho: '#DE1010',
     fontePadrao: '#181818',
+    azulBtn: '#5875BF',
+
 }
 
 const estilosGlobais: any = {
